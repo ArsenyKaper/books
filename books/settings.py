@@ -69,6 +69,19 @@ TEMPLATES = [
     },
 ]
 
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+    ),
+    'DEFAULT_PARSER_CLASSES': (
+        'rest_framework.parsers.JSONParser',
+    ),
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ]
+}
+
 WSGI_APPLICATION = 'books.wsgi.application'
 
 # Database
@@ -124,15 +137,6 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
-REST_FRAMEWORK = {
-    'DEFAULT_RENDERER_CLASSES': (
-        'rest_framework.renderers.JSONRenderer',
-    ),
-    'DEFAULT_PARSER_CLASSES': (
-        'rest_framework.parsers.JSONParser',
-    ),
-}
-
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
@@ -144,3 +148,5 @@ SOCIAL_AUTH_GITHUB_KEY = '2e18b995bb43db28762f'
 SOCIAL_AUTH_GITHUB_SECRET = '4cfb0b968b14a0f86491c5b3126550b72be80fe8'
 
 CSRF_HEADER_NAME = 'L0APwVB8oVvcX4609bsaYY103bi1SpiXBBpqZLnO84MBcsNtdjY7bboibRduwGDr'
+
+CORS_ALLOW_ALL_ORIGINS = True
