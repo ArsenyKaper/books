@@ -1,20 +1,44 @@
+from django.db.models import Count, Case, When
+from django.shortcuts import render
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
-from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
-from rest_framework.viewsets import ModelViewSet
-from django.shortcuts import render
-from store.models import Book
-from store.serializers import BooksSerializer
+from rest_framework.mixins import UpdateModelMixin
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.viewsets import ModelViewSet, GenericViewSet
+
+from store.models import Book, UserBookRelation
+from store.permissions import IsOwnerOrStaffOrReadOnly
+from store.serializers import BooksSerializer, UserBookRelationSerializer
 
 
 class BookViewSet(ModelViewSet):
-    queryset = Book.objects.all()
+    queryset = Book.objects.all().annotate(
+        anotated_likes=Count(Case(When(userbookrelation__like=True, then=1))))
     serializer_class = BooksSerializer
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [IsOwnerOrStaffOrReadOnly]
     filter_fields = ['price']
     search_fields = ['name', 'author_name']
     ordering_fields = ['price', 'author_name']
+
+    def perform_create(self, serializer):
+        serializer.validated_data['owner'] = self.request.user
+        serializer.save()
+
+
+class UserBookRelationView(UpdateModelMixin, GenericViewSet):
+    permission_classes = [IsAuthenticated]
+    queryset = UserBookRelation.objects.all()
+    serializer_class = UserBookRelationSerializer
+    # берем поле book из UserBookRelation(что бы скрыть работу с этой моделью от клиента)
+    lookup_field = 'book'
+
+    # создаеться релейшн
+    def get_object(self):
+        obj, _ = UserBookRelation.objects.get_or_create(user=self.request.user,
+                                                        book_id=self.kwargs['book'])
+
+        return obj
 
 
 def auth(request):

@@ -17,11 +17,12 @@ from django.contrib import admin
 from django.urls import include
 from django.urls import path
 from rest_framework.routers import SimpleRouter
-from store.views import auth
+from store.views import auth, UserBookRelationView
 from store.views import BookViewSet
 
 router = SimpleRouter()
 router.register(r'book', BookViewSet)
+router.register(r'book_relation', UserBookRelationView)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
