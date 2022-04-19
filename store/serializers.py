@@ -6,12 +6,12 @@ from store.models import Book, UserBookRelation
 
 class BooksSerializer(ModelSerializer):
     likes_count = serializers.SerializerMethodField()
-    anotated_likes = serializers.IntegerField(read_only=True)
-
+    annotated_likes = serializers.IntegerField(read_only=True)
+    rating = serializers.DecimalField(max_digits=3, decimal_places=2)
 
     class Meta:
         model = Book
-        fields = ['id', 'name', 'price', 'author_name', 'likes_count', 'anotated_likes']
+        fields = ['id', 'name', 'price', 'author_name', 'likes_count', 'annotated_likes', 'rating']
 
     # инстанс это книг которую мы сериализуем в данный момент что приходит
     # book  это поле в UserBookRelation то есть конкретная книга
