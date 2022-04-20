@@ -1,4 +1,4 @@
-from django.db.models import Count, Case, When
+from django.db.models import Count, Case, When, Avg
 from django.shortcuts import render
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
@@ -10,10 +10,13 @@ from store.models import Book, UserBookRelation
 from store.permissions import IsOwnerOrStaffOrReadOnly
 from store.serializers import BooksSerializer, UserBookRelationSerializer
 
-
+#select_related('owner') выгребает один объект: owner (ForeignKey)
+#prefetch_related('readers') чвыгребает все связанные объекты: readers (ManyToManyField)
 class BookViewSet(ModelViewSet):
     queryset = Book.objects.all().annotate(
-        anotated_likes=Count(Case(When(userbookrelation__like=True, then=1))))
+            annotated_likes=Count(Case(When(userbookrelation__like=True,then=1)))
+            # rating=Avg('userbookrelation__rate')
+        ).select_related('owner').prefetch_related('readers').order_by('id')
     serializer_class = BooksSerializer
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     permission_classes = [IsOwnerOrStaffOrReadOnly]
